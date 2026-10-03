@@ -1,0 +1,21 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# PDF files
+data/*.pdf
+
+# FAISS vector database
+vectorstore/
+
+# Environment variables
+.env
+
+# Streamlit
+.streamlit/
+
+# VS Code
+.vscode/
