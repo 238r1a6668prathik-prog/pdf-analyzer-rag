@@ -2,7 +2,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-# Load PDF
+# Give the path of the PDF file
 pdf_path = "data/Python_Notes.pdf"
 
 loader = PyPDFLoader(pdf_path)
@@ -11,24 +11,24 @@ documents = loader.load()
 print("Number of pages:", len(documents))
 
 
-# Create text splitter
+# Set the chunk size and overlap
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
     chunk_overlap=200
 )
 
 
-# Split documents into chunks
+# Split the PDF into smaller chunks
 chunks = text_splitter.split_documents(documents)
 
 print("Number of chunks:", len(chunks))
 
 
-# Display first chunk
+# Display the first chunk
 print("\nFirst chunk:\n")
 print(chunks[0].page_content)
 
 
-# Display metadata
+# Display information about the first chunk
 print("\nMetadata:")
 print(chunks[0].metadata)
