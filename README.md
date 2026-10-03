@@ -95,7 +95,7 @@ Streamlit provides the web interface where users can:
 
 The application allows users to upload a PDF, ask questions, and view answers along with the source pages.
 
-![PDF Analyzer using RAG](screenshots/pdf-analyzer.png)
+![PDF Analyzer using RAG](Screenshots/pdf-analyzer.png)
 
 ## 📁 Project Structure
 
