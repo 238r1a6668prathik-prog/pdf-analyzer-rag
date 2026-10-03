@@ -2,19 +2,13 @@ from langchain_ollama import OllamaEmbeddings
 from langchain_community.vectorstores import FAISS
 
 
-# -----------------------------
-# 1. Load embedding model
-# -----------------------------
-
+# Load the embedding model
 embeddings = OllamaEmbeddings(
     model="nomic-embed-text"
 )
 
 
-# -----------------------------
-# 2. Load FAISS vector store
-# -----------------------------
-
+# Load the saved FAISS vector database
 vector_store = FAISS.load_local(
     "vectorstore",
     embeddings,
@@ -24,33 +18,21 @@ vector_store = FAISS.load_local(
 print("FAISS vector store loaded successfully!")
 
 
-# -----------------------------
-# 3. Create retriever
-# -----------------------------
-
+# Create a retriever to find relevant chunks
 retriever = vector_store.as_retriever(
     search_kwargs={"k": 3}
 )
 
 
-# -----------------------------
-# 4. Ask a question
-# -----------------------------
-
-question = "What is the main objective of this document?"
+# Question that we want to search in the PDF
+question = "What is Python?"
 
 
-# -----------------------------
-# 5. Retrieve relevant chunks
-# -----------------------------
-
+# Find the three most relevant chunks
 results = retriever.invoke(question)
 
 
-# -----------------------------
-# 6. Display results
-# -----------------------------
-
+# Display the retrieved chunks
 print("\nNumber of relevant chunks:", len(results))
 
 for i, document in enumerate(results):

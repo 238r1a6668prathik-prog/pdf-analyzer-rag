@@ -2,19 +2,13 @@ from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_community.vectorstores import FAISS
 
 
-# -----------------------------
-# 1. Load embedding model
-# -----------------------------
-
+# Load the embedding model
 embeddings = OllamaEmbeddings(
     model="nomic-embed-text"
 )
 
 
-# -----------------------------
-# 2. Load FAISS vector store
-# -----------------------------
-
+# Load the FAISS vector database
 vector_store = FAISS.load_local(
     "vectorstore",
     embeddings,
@@ -24,53 +18,35 @@ vector_store = FAISS.load_local(
 print("FAISS vector store loaded successfully!")
 
 
-# -----------------------------
-# 3. Create retriever
-# -----------------------------
-
+# Create a retriever to find relevant PDF chunks
 retriever = vector_store.as_retriever(
     search_kwargs={"k": 3}
 )
 
 
-# -----------------------------
-# 4. Load Qwen
-# -----------------------------
-
+# Load the Qwen model for generating answers
 llm = ChatOllama(
     model="qwen2.5-coder:3b",
     temperature=0
 )
 
 
-# -----------------------------
-# 5. User question
-# -----------------------------
-
+# Question we want to ask the PDF
 question = "What is Python?"
 
 
-# -----------------------------
-# 6. Retrieve relevant chunks
-# -----------------------------
-
+# Find the most relevant chunks for the question
 documents = retriever.invoke(question)
 
 
-# -----------------------------
-# 7. Create context
-# -----------------------------
-
+# Combine the retrieved chunks into one context
 context = "\n\n".join(
     document.page_content
     for document in documents
 )
 
 
-# -----------------------------
-# 8. Prompt
-# -----------------------------
-
+# Create a prompt using the retrieved PDF content
 prompt = f"""
 You are a PDF Analyzer.
 
@@ -92,17 +68,11 @@ Answer:
 """
 
 
-# -----------------------------
-# 9. Generate answer
-# -----------------------------
-
+# Send the prompt to Qwen and generate the answer
 response = llm.invoke(prompt)
 
 
-# -----------------------------
-# 10. Display answer
-# -----------------------------
-
+# Display the generated answer
 print("\n" + "=" * 60)
 print("ANSWER")
 print("=" * 60)
@@ -110,10 +80,7 @@ print("=" * 60)
 print(response.content)
 
 
-# -----------------------------
-# 11. Display sources
-# -----------------------------
-
+# Display the PDF pages used for the answer
 print("\n" + "=" * 60)
 print("SOURCES")
 print("=" * 60)
