@@ -7,10 +7,7 @@ from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_community.vectorstores import FAISS
 
 
-# -----------------------------------
-# Page configuration
-# -----------------------------------
-
+# Set up the Streamlit page
 st.set_page_config(
     page_title="PDF Analyzer using RAG",
     page_icon="📄",
@@ -18,10 +15,7 @@ st.set_page_config(
 )
 
 
-# -----------------------------------
-# Title
-# -----------------------------------
-
+# Display the application title
 st.title("📄 PDF Analyzer using RAG")
 
 st.write(
@@ -29,10 +23,7 @@ st.write(
 )
 
 
-# -----------------------------------
-# Initialize models
-# -----------------------------------
-
+# Load the embedding model and LLM
 embeddings = OllamaEmbeddings(
     model="nomic-embed-text"
 )
@@ -43,20 +34,14 @@ llm = ChatOllama(
 )
 
 
-# -----------------------------------
-# Upload PDF
-# -----------------------------------
-
+# Allow the user to upload a PDF
 uploaded_file = st.file_uploader(
     "Upload your PDF",
     type=["pdf"]
 )
 
 
-# -----------------------------------
-# Process PDF
-# -----------------------------------
-
+# Save and process the uploaded PDF
 if uploaded_file is not None:
 
     os.makedirs("data", exist_ok=True)
@@ -78,13 +63,12 @@ if uploaded_file is not None:
 
         with st.spinner("Processing PDF..."):
 
-            # Load PDF
+            # Read the PDF and extract its text
             loader = PyPDFLoader(pdf_path)
-
             documents = loader.load()
 
 
-            # Split into chunks
+            # Break the extracted text into smaller chunks
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=1000,
                 chunk_overlap=200
@@ -95,14 +79,14 @@ if uploaded_file is not None:
             )
 
 
-            # Create FAISS vector store
+            # Convert the chunks into embeddings and store them in FAISS
             vector_store = FAISS.from_documents(
                 chunks,
                 embeddings
             )
 
 
-            # Save vector store
+            # Save the FAISS index for later searches
             vector_store.save_local(
                 "vectorstore"
             )
@@ -115,19 +99,13 @@ if uploaded_file is not None:
         )
 
 
-# -----------------------------------
-# Question input
-# -----------------------------------
-
+# Get the question from the user
 question = st.text_input(
     "Ask a question about your PDF:"
 )
 
 
-# -----------------------------------
-# Ask button
-# -----------------------------------
-
+# Search the PDF and generate an answer
 if st.button("🔍 Ask"):
 
     if not question:
@@ -144,7 +122,7 @@ if st.button("🔍 Ask"):
 
         with st.spinner("Finding answer..."):
 
-            # Load FAISS
+            # Load the saved FAISS vector database
             vector_store = FAISS.load_local(
                 "vectorstore",
                 embeddings,
@@ -152,26 +130,26 @@ if st.button("🔍 Ask"):
             )
 
 
-            # Retriever
+            # Use the vector database to find relevant chunks
             retriever = vector_store.as_retriever(
                 search_kwargs={"k": 3}
             )
 
 
-            # Retrieve documents
+            # Retrieve the most relevant chunks for the question
             documents = retriever.invoke(
                 question
             )
 
 
-            # Create context
+            # Combine the retrieved chunks to create the context
             context = "\n\n".join(
                 document.page_content
                 for document in documents
             )
 
 
-            # Prompt
+            # Give the retrieved context and question to the LLM
             prompt = f"""
 You are a PDF Analyzer.
 
@@ -195,23 +173,17 @@ Answer:
 """
 
 
-            # Generate answer
+            # Generate the final answer
             response = llm.invoke(prompt)
 
 
-        # -----------------------------------
-        # Display answer
-        # -----------------------------------
-
+        # Show the generated answer
         st.subheader("💡 Answer")
 
         st.write(response.content)
 
 
-        # -----------------------------------
-        # Display sources
-        # -----------------------------------
-
+        # Show the pages used to generate the answer
         st.subheader("📚 Sources")
 
         seen_pages = set()
